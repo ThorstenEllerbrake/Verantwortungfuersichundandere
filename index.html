@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prüfungsfragen-Auswahltool – Sexualität</title>
+<style>
+  :root {
+    --ink: #1a1a1a; --muted: #6b7280; --bg: #f4f6f8; --card: #ffffff; --line: #e2e6ea; --navy: #0D1B2A;
+    --afb1-b: #1A3A5C; --afb1-f: #E3F0FC;
+    --afb2-b: #2E7D32; --afb2-f: #F1F8F1;
+    --afb3-b: #E65100; --afb3-f: #FFF8F0;
+    --ki-b: #7B1FA2; --ki-f: #F3E5F5;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, "Segoe UI", Arial, Helvetica, sans-serif; background: var(--bg); color: var(--ink); margin: 0; padding: 1.5rem 1rem 4rem; }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  header.page h1 { font-size: 1.5rem; color: var(--navy); margin: 0 0 0.15rem; }
+  header.page p { margin: 0; color: var(--muted); font-size: 0.88rem; }
+  .addbar { display: flex; gap: 0.5rem; margin: 1.2rem 0; }
+  .addbar input { flex: 1; padding: 0.55rem 0.8rem; border: 1px solid var(--line); border-radius: 8px; font-size: 0.95rem; background: var(--card); }
+  button { font-family: inherit; cursor: pointer; border: none; border-radius: 8px; padding: 0.55rem 0.9rem; font-size: 0.85rem; font-weight: 600; }
+  button:active { transform: scale(0.98); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary { background: var(--navy); color: #fff; }
+  .btn-ghost { background: #eef1f4; color: var(--navy); }
+  .btn-small { padding: 0.4rem 0.7rem; font-size: 0.78rem; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 1rem; overflow: hidden; }
+  .card-head { display: flex; align-items: center; gap: 0.7rem; padding: 0.9rem 1.1rem; flex-wrap: wrap; }
+  .card-name { font-size: 1.05rem; font-weight: 700; color: var(--navy); flex: 1; }
+  .card-actions { display: flex; flex-wrap: wrap; gap: 0.45rem; padding: 0 1.1rem 1rem; }
+  .panel { border-top: 1px solid var(--line); padding: 1rem 1.1rem 1.1rem; background: #fafbfc; }
+  .panel h4 { margin: 0 0 0.6rem; font-size: 0.95rem; color: var(--navy); }
+  .block-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.4rem; margin-bottom: 0.9rem; }
+  .block-check { display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; background: #fff; border: 1px solid var(--line); border-radius: 7px; padding: 0.4rem 0.6rem; }
+  .block-check.pflicht { border-color: #1A3A5C; background: #E3F0FC; }
+  .num-row { display: flex; align-items: center; gap: 0.6rem; margin: 0.5rem 0; font-size: 0.87rem; flex-wrap: wrap; }
+  .num-row input { width: 50px; padding: 0.35rem 0.5rem; border: 1px solid var(--line); border-radius: 7px; text-align: center; font-family: inherit; }
+  .num-row.ki-row { padding: 0.5rem 0.7rem; background: var(--ki-f); border: 1px solid var(--ki-b); border-radius: 8px; }
+  .num-row.ki-row strong { color: var(--ki-b); }
+  .qbox { border-radius: 8px; padding: 0.7rem 0.9rem; margin-bottom: 0.6rem; border-left: 5px solid; }
+  .qbox.afb1 { background: var(--afb1-f); border-color: var(--afb1-b); }
+  .qbox.afb2 { background: var(--afb2-f); border-color: var(--afb2-b); }
+  .qbox.afb3 { background: var(--afb3-f); border-color: var(--afb3-b); }
+  .qbox.ki { background: var(--ki-f); border-color: var(--ki-b); }
+  .qbox .qlabel { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.25rem; }
+  .qbox.afb1 .qlabel { color: var(--afb1-b); }
+  .qbox.afb2 .qlabel { color: var(--afb2-b); }
+  .qbox.afb3 .qlabel { color: var(--afb3-b); }
+  .qbox.ki .qlabel { color: var(--ki-b); }
+  .qbox .qtext { font-size: 0.92rem; margin-bottom: 0.5rem; }
+  .rating { display: flex; gap: 0.3rem; flex-wrap: wrap; }
+  .rating button { padding: 0.3rem 0.6rem; font-size: 0.78rem; background: #fff; border: 1px solid var(--line); color: var(--muted); }
+  .rating button.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .block-heading { font-weight: 700; color: var(--navy); margin: 1rem 0 0.5rem; font-size: 0.95rem; }
+  .sub-heading { font-weight: 700; font-size: 0.8rem; margin: 0.8rem 0 0.4rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  .sub-heading.fach { color: var(--navy); }
+  .sub-heading.ki { color: var(--ki-b); }
+  table.history { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  table.history th, table.history td { text-align: left; padding: 0.45rem 0.5rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.history th { color: var(--muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; }
+  .hist-empty { color: var(--muted); font-size: 0.85rem; }
+  .toast { position: fixed; bottom: 1.2rem; left: 50%; transform: translateX(-50%); background: var(--navy); color: #fff; padding: 0.6rem 1.1rem; border-radius: 8px; font-size: 0.85rem; opacity: 0; pointer-events: none; transition: opacity 0.25s ease; z-index: 50; }
+  .toast.show { opacity: 1; }
+  .empty { text-align: center; color: var(--muted); padding: 3rem 1rem; background: var(--card); border-radius: 12px; border: 1px dashed var(--line); }
+  .footer-note { text-align: center; color: var(--muted); font-size: 0.78rem; margin-top: 2rem; }
+  details summary { cursor: pointer; font-size: 0.85rem; color: var(--navy); margin: 0.4rem 0; }
+  .auswertung { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 0.9rem 1rem; margin: 0.8rem 0; }
+  .auswertung h5 { margin: 0 0 0.6rem; font-size: 0.88rem; color: var(--navy); }
+  .chart-row { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem; font-size: 0.8rem; }
+  .chart-row .rlabel { width: 28px; font-weight: 700; color: var(--muted); text-align: right; }
+  .chart-row .bar-track { flex: 1; background: #eef1f4; border-radius: 5px; height: 16px; overflow: hidden; }
+  .chart-row .bar-fill { height: 100%; border-radius: 5px; }
+  .chart-row .rcount { width: 22px; color: var(--muted); font-size: 0.78rem; }
+  .grade-suggestion { margin-top: 0.7rem; padding: 0.6rem 0.8rem; border-radius: 8px; background: #eef1f4; font-size: 0.86rem; }
+  .grade-suggestion strong { color: var(--navy); }
+  .afb-breakdown { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.6rem; font-size: 0.8rem; }
+  .afb-breakdown span.tag { padding: 0.15rem 0.5rem; border-radius: 999px; font-weight: 700; font-size: 0.72rem; margin-right: 0.3rem; }
+  .disclaimer { font-size: 0.75rem; color: var(--muted); margin-top: 0.5rem; font-style: italic; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="page">
+    <h1>Prüfungsfragen-Auswahltool</h1>
+    <p>WPK Naturwissenschaften · Reihe 4: Sexualität – Verantwortung für sich und andere · mündliches Prüfungsgespräch (~15 Min.)</p>
+  </header>
+
+  <div class="addbar">
+    <input type="text" id="newGroupName" placeholder="Neue Gruppe anlegen, z. B. 'Gruppe Rot'" maxlength="60">
+    <button class="btn-primary" id="addGroupBtn">+ Gruppe</button>
+  </div>
+  <div class="addbar" style="margin-top:-0.6rem;">
+    <button class="btn-ghost btn-small" id="exportBtn">Daten exportieren (Backup)</button>
+    <button class="btn-ghost btn-small" id="importBtn">Daten importieren</button>
+    <input type="file" id="importFile" accept="application/json" style="display:none;">
+  </div>
+
+  <div id="groupList"></div>
+  <div class="footer-note">Alle Daten werden lokal in diesem Browser auf diesem Gerät gespeichert und bleiben dauerhaft erhalten. Erstelle regelmäßig ein Backup über „Daten exportieren“. Dieses Tool ist ein Lehrkraft-Werkzeug – nicht für its-learning gedacht.</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const BLOCKS_META = {
+  A: { title: "Einverständnis, Kommunikation und Verantwortung", pflicht: true },
+  B: { title: "Verhütung – Methoden, Wirksamkeit und geteilte Verantwortung", pflicht: true },
+  C: { title: "Rechtliche Grundlagen – was ist erlaubt, was nicht?", pflicht: true },
+  D: { title: "Menstruationszyklus und hormonelle Steuerung", pflicht: false },
+  E: { title: "Befruchtung, Schwangerschaft und Geburt", pflicht: false },
+  F: { title: "Pränataldiagnostik – was Ultraschall zeigt", pflicht: false },
+  G: { title: "Sexuell übertragbare Erkrankungen", pflicht: false },
+  H: { title: "Sexuelle Vielfalt und Identität", pflicht: false },
+  I: { title: "Verhütung, Hormone und Umwelt", pflicht: false },
+  J: { title: "Schwangerschaftsabbruch (KI-Kernblock)", pflicht: false },
+  K: { title: "Gefahren des Internets", pflicht: false },
+  L: { title: "Kinderwunsch und Reproduktionsmedizin (KI-Kernblock)", pflicht: false },
+};
+
+const QUESTIONS = {
+  A: {
+    afb1: [
+      "Nenne die vier Merkmale, die ein gültiges Einverständnis (Consent) erfüllen muss.",
+      "Nenne den Paragrafen, der seit 2016 den Grundsatz „Nein heißt Nein“ regelt.",
+      "Beschreibe in einem Satz, was mit dem Merkmal „freiwillig“ bei einem Einverständnis gemeint ist.",
+      "Beschreibe, warum ein Einverständnis jederzeit widerrufbar sein muss.",
+      "Nenne ein Beispiel für ein Abhängigkeitsverhältnis, das ein Einverständnis unwirksam machen kann.",
+      "Beschreibe, warum starker Alkoholkonsum ein Einverständnis unwirksam machen kann.",
+    ],
+    afb2: [
+      "Erkläre, warum Kleidung oder die bloße Anwesenheit auf einer Party kein Einverständnis bedeuten.",
+      "Erkläre den Unterschied zwischen einem „Nein heißt Nein“- und einem „Nur Ja heißt Ja“-Modell.",
+      "Erkläre, was eine Schockstarre ist und warum sie keine Zustimmung darstellt.",
+      "Erkläre, warum Unsicherheit über den Willen des Gegenübers als Nein zu behandeln ist.",
+    ],
+    afb3: [
+      "Beurteile, welche Verantwortung beide Beteiligten einer sexuellen Situation für die Kommunikation von Einverständnis tragen.",
+      "Bewerte die Aussage: „Wenn niemand Nein sagt, ist es ein Ja.“",
+    ],
+    ki1: [
+      "Nenne, wie ein klarer Prompt zur Frage nach Verantwortung bei Grenzüberschreitungen formuliert sein könnte (KI-Level 1).",
+      "Beschreibe, warum man eine KI-Antwort zu Verantwortung immer mit einer seriösen Quelle abgleichen sollte.",
+    ],
+    ki2: [
+      "Erkläre, wie du eine KI-Antwort auf versteckte Wertungen bezüglich Geschlechterrollen prüfst (KI-Level 2).",
+    ],
+    ki3: [
+      "Erkläre, wie du eine KI gezielt nach der Perspektive der jeweils anderen beteiligten Person fragst (KI-Level 3).",
+    ],
+  },
+  B: {
+    afb1: [
+      "Nenne den Pearl-Index für „keine Verhütung“.",
+      "Nenne je zwei mechanische und zwei hormonelle Verhütungsmethoden.",
+      "Beschreibe in eigenen Worten, was der Pearl-Index misst.",
+      "Beschreibe den Unterschied zwischen „perfekter“ und „typischer“ Anwendung in einem Satz.",
+      "Nenne die einzige verbreitete Methode, die zugleich vor Schwangerschaft und vor vielen STIs schützt.",
+      "Nenne das Hormon, das die Antibabypille meist zusätzlich zu einem Gestagen enthält.",
+    ],
+    afb2: [
+      "Erkläre, wie die Antibabypille den Eisprung verhindert.",
+      "Erkläre, wie die Kupferspirale wirkt.",
+      "Vergleiche die Pearl-Index-Werte von Kondom und Antibabypille (perfekte und typische Anwendung).",
+      "Erkläre, warum bei manchen Methoden „perfekt“ und „typisch“ stark auseinanderliegen, bei anderen kaum.",
+    ],
+    afb3: [
+      "Beurteile die Aussage: „Für Verhütung ist die Frau zuständig.“",
+      "Bewerte, warum eine Methode mit niedrigem Pearl-Index nicht automatisch die richtige Wahl für jede Person ist.",
+    ],
+    ki1: [
+      "Nenne, womit ihr die Pearl-Index-Angabe einer KI zu einer Verhütungsmethode abgleicht.",
+    ],
+    ki2: [
+      "Erkläre, wie du prüfst, ob eine KI-Antwort einen verbreiteten Verhütungsmythos wiedergibt (KI-Level 2).",
+    ],
+    ki3: [
+      "Beschreibe, wie ihr eine KI-Aufgabe zu Verhütung vollständig dokumentiert (Prompt → Ergebnis → Bewertung → Überarbeitung).",
+    ],
+  },
+  C: {
+    afb1: [
+      "Nenne die Altersgrenze, unter der sexuelle Handlungen in Deutschland ausnahmslos verboten sind.",
+      "Nenne den Paragrafen, der Kinder unter 14 Jahren absolut schützt.",
+      "Beschreibe in einem Satz, was § 218 StGB regelt.",
+      "Nenne die Frist, bis zu der ein Schwangerschaftsabbruch nach der Beratungsregelung straffrei bleiben kann.",
+      "Nenne das Jahr, in dem das Werbeverbot § 219a abgeschafft wurde.",
+      "Beschreibe, welche Art von Verhältnis § 174 StGB besonders schützt.",
+    ],
+    afb2: [
+      "Erkläre den Unterschied in der Rechtslage zwischen 14- bis 15-Jährigen und 16- bis 17-Jährigen (§ 182).",
+      "Erkläre, warum die Einwilligung eines Kindes unter 14 Jahren rechtlich unbeachtlich ist.",
+      "Erkläre die Voraussetzungen, unter denen ein Schwangerschaftsabbruch nach § 218a straffrei bleibt.",
+    ],
+    afb3: [
+      "Beurteile, warum eine Gesellschaft klare Altersgrenzen im Sexualstrafrecht braucht, obwohl Menschen unterschiedlich reif werden.",
+      "Bewerte, warum bei § 218 zwischen Fakt (was gilt) und Wertung (was gelten sollte) unterschieden werden muss.",
+    ],
+    ki1: [
+      "Nenne, wie ihr eine KI-Antwort zu einer Rechtsfrage mit einer amtlichen Quelle (z. B. gesetze-im-internet.de) abgleicht.",
+    ],
+    ki2: [
+      "Erkläre, wie du prüfst, ob eine KI bei einer Rechtsfrage veraltete oder ungenaue Angaben liefert (KI-Level 1/2).",
+    ],
+    ki3: [
+      "Erkläre, wie du eine KI nach verschiedenen gesellschaftlichen Perspektiven zur Reformdebatte um § 218 fragst und prüfst, ob sie ausgewogen bleibt (KI-Level 3).",
+    ],
+  },
+  D: {
+    afb1: [
+      "Nenne die vier Abschnitte des Menstruationszyklus in der richtigen Reihenfolge.",
+      "Nenne die zwei Hypophysenhormone, die den Zyklus steuern.",
+      "Beschreibe, was beim Eisprung passiert.",
+      "Nenne das Hormon, das nach dem Eisprung vom Gelbkörper gebildet wird.",
+      "Beschreibe in einem Satz, warum die Zykluslänge von Person zu Person schwankt.",
+    ],
+    afb2: [
+      "Erkläre den Unterschied zwischen negativer und positiver Rückkopplung im Zyklus.",
+      "Erkläre, wodurch der LH-Anstieg den Eisprung auslöst.",
+      "Erkläre, wie hormonelle Verhütung (Block B) in diesen Regelkreis eingreift.",
+    ],
+    afb3: [
+      "Beurteile, warum pauschale Aussagen wie „an Tag X ist man immer unfruchtbar“ wissenschaftlich nicht haltbar sind.",
+      "Bewerte kritisch, warum Zyklus-Apps als „natürliche, sichere“ Verhütung beworben werden.",
+    ],
+    ki1: [
+      "Nenne, womit ihr eine KI-Aussage zu „sicheren Tagen“ im Zyklus abgleicht.",
+    ],
+    ki2: [
+      "Erkläre, wie du erkennst, ob eine KI-Antwort einen Zyklus-Mythos wiedergibt (KI-Level 2).",
+    ],
+    ki3: [],
+  },
+  E: {
+    afb1: [
+      "Nenne die drei Trimester der Schwangerschaft.",
+      "Beschreibe, was bei der Einnistung der befruchteten Eizelle passiert.",
+      "Nenne die ungefähre Dauer einer Schwangerschaft in Tagen.",
+      "Beschreibe den Unterschied zwischen Embryo und Fötus.",
+    ],
+    afb2: [
+      "Erkläre die drei Phasen der Geburt.",
+      "Erkläre, welche körperlichen Veränderungen in einem Trimester deiner Wahl typisch sind.",
+    ],
+    afb3: [
+      "Beurteile, wie man Aussagen aus sozialen Medien zu Schwangerschaft (z. B. Bauchform, Gelüste) von gesichertem Wissen unterscheidet.",
+    ],
+    ki1: [
+      "Nenne, worauf ihr achtet, wenn eine KI „Tipps für eine gesunde Schwangerschaft“ gibt.",
+    ],
+    ki2: [
+      "Erkläre, wie du eine KI-Antwort zu Schwangerschaftstipps auf unbelegte Ratschläge prüfst (KI-Level 2).",
+    ],
+    ki3: [
+      "Erkläre, wie du eine KI gezielt nach der medizinischen Sicht im Vergleich zu Alltagsempfehlungen fragst (KI-Level 3).",
+    ],
+  },
+  F: {
+    afb1: [
+      "Nenne drei Verfahren der Pränataldiagnostik.",
+      "Beschreibe, was ein CTG misst.",
+      "Beschreibe den Unterschied zwischen einem falsch-positiven und einem falsch-negativen Befund.",
+    ],
+    afb2: [
+      "Erkläre, warum ein auffälliger Befund noch keine sichere Diagnose ist.",
+      "Erkläre, was ein Ultraschall zeigen kann und was nicht.",
+    ],
+    afb3: [
+      "Beurteile das Dilemma, ob werdende Eltern alles wissen wollen sollten, was medizinisch messbar ist.",
+    ],
+    ki1: [
+      "Fragt eine KI: „Sollte man Pränataldiagnostik nutzen?“ – nenne, worauf ihr in der Antwort achtet.",
+    ],
+    ki2: [],
+    ki3: [
+      "Beurteile, ob eine KI bei dieser ethischen Frage neutral bleibt oder eine Richtung vorgibt (KI-Level 3, Vorbereitung auf Level 4).",
+    ],
+  },
+  G: {
+    afb1: [
+      "Nenne drei sexuell übertragbare Erkrankungen.",
+      "Nenne die einzige verbreitete Methode, die zugleich vor Schwangerschaft und vor vielen STIs schützt.",
+      "Beschreibe, wogegen die HPV-Impfung vorbeugend schützt.",
+      "Nenne einen Grund, warum viele STIs lange unbemerkt bleiben.",
+    ],
+    afb2: [
+      "Erkläre, warum bakterielle STIs meist gut behandelbar, virale wie HIV aber nicht heilbar sind.",
+      "Erkläre die Bedeutung regelmäßiger Tests für die Vorsorge.",
+    ],
+    afb3: [
+      "Beurteile die Aussage: „Einer gesund aussehenden Person kann beim Sex nichts passieren.“",
+    ],
+    ki1: [
+      "Nenne, wie ihr eine KI-Aussage zum Schutz vor einer STI mit einer Fachquelle (z. B. RKI, Aidshilfe) abgleicht.",
+    ],
+    ki2: [
+      "Erkläre, wie du prüfst, ob eine KI einen verbreiteten STI-Mythos wiedergibt (KI-Level 2).",
+    ],
+    ki3: [],
+  },
+  H: {
+    afb1: [
+      "Erkläre den Unterschied zwischen sexueller Orientierung und Geschlechtsidentität.",
+      "Nenne das Jahr, in dem § 175 in Deutschland vollständig abgeschafft wurde.",
+      "Nenne das Jahr der Einführung der „Ehe für alle“ in Deutschland.",
+      "Beschreibe in einem Satz, was das Selbstbestimmungsgesetz (2024) regelt.",
+    ],
+    afb2: [
+      "Erkläre, wie sich der rechtliche Umgang mit Homosexualität in Deutschland seit 1994 verändert hat.",
+      "Erkläre, warum sexuelle und geschlechtliche Vielfalt keine „Mode“ ist, sondern historisch und kulturell breit dokumentiert.",
+    ],
+    afb3: [
+      "Beurteile, warum ein respektvoller Umgang mit unterschiedlichen Identitäten für ein gutes Miteinander wichtig ist.",
+    ],
+    ki1: [
+      "Nenne, worauf ihr achtet, wenn eine KI zu einem Aspekt sexueller Vielfalt Stellung nimmt.",
+    ],
+    ki2: [
+      "Erkläre, wie du eine KI-Antwort zum Thema Vielfalt auf Stereotype oder versteckte Wertungen prüfst (KI-Level 2).",
+    ],
+    ki3: [
+      "Erkläre, wie du eine KI gezielt nach fehlenden Perspektiven zu einem Aspekt von Vielfalt fragst (KI-Level 3).",
+    ],
+  },
+  I: {
+    afb1: [
+      "Nenne die drei klassischen Reinigungsstufen einer Kläranlage.",
+      "Nenne das Hormon, das bei hormoneller Verhütung ins Abwasser gelangen kann (Ethinylestradiol).",
+      "Beschreibe, was eine vierte Reinigungsstufe zusätzlich leistet.",
+      "Nenne einen beobachteten Effekt von endokrinen Disruptoren bei Fischen.",
+    ],
+    afb2: [
+      "Erkläre, wie Ozonung oder Aktivkohle Mikroschadstoffe aus dem Abwasser entfernt (Oxidation bzw. Adsorption).",
+      "Erkläre, warum die drei klassischen Reinigungsstufen bei einem Stoff wie EE2 nicht ausreichen.",
+    ],
+    afb3: [
+      "Beurteile, wer Verantwortung für Mikroschadstoffe im Wasser trägt (Verbraucher*innen, Industrie, Politik).",
+      "Bewerte die Aussage: „Die Konzentrationen sind so gering, dass sie egal sind.“",
+    ],
+    ki1: [
+      "Nenne, womit ihr eine KI-Aussage zu Umweltfolgen von Verhütung abgleicht (z. B. Umweltbundesamt).",
+    ],
+    ki2: [],
+    ki3: [
+      "Erkläre den Unterschied zwischen einer neutralen und einer herstellerfreundlichen KI-Antwort zu Umweltfolgen der Pille (KI-Level 3+).",
+    ],
+  },
+  J: {
+    afb1: [
+      "Nenne den Paragrafen, der den Schwangerschaftsabbruch in Deutschland grundsätzlich regelt.",
+      "Nenne die Frist, bis zu der ein Abbruch nach der Beratungsregelung straffrei bleiben kann.",
+      "Beschreibe die Beratungsregelung in einem Satz.",
+      "Nenne die zwei weiteren Indikationen neben der Beratungsregelung.",
+    ],
+    afb2: [
+      "Erkläre je ein Argument der Positionen „Selbstbestimmung“ und „Lebensschutz“.",
+      "Erkläre, warum diese Frage nicht allein durch Naturwissenschaft beantwortet werden kann.",
+    ],
+    afb3: [
+      "Beurteile, wie eine Gesellschaft mit einer Frage umgehen sollte, auf die es keine wissenschaftlich eindeutige Antwort gibt.",
+    ],
+    ki1: [
+      "Nenne, was bei der KI-Kernaufgabe zu einem ethischen Dilemma vollständig dokumentiert werden muss.",
+    ],
+    ki2: [
+      "Beschreibe, woran man erkennt, dass eine KI-Antwort bei einer ethischen Frage ausweicht.",
+    ],
+    ki3: [
+      "★ KI-Kernfrage (Level 4): Erkläre, wie ein neutraler und ein tendenziöser Prompt zum Schwangerschaftsabbruch formuliert sein könnten, und woran man eine unbemerkte Positionierung der KI-Antwort erkennt.",
+    ],
+  },
+  K: {
+    afb1: [
+      "Nenne drei digitale Gefahren im Zusammenhang mit Sexualität (z. B. Cybergrooming, Sextortion, Revenge Porn).",
+      "Beschreibe, was ein sexualisierter Deepfake ist.",
+      "Nenne den Paragrafenbereich, der Cybergrooming unter Strafe stellt.",
+      "Beschreibe, warum Pornografie kein realistisches Bild von Sexualität zeigt.",
+    ],
+    afb2: [
+      "Erkläre den Unterschied zwischen dem Verbreiten und dem Herstellen sexualisierter Deepfakes in der aktuellen Rechtslage.",
+      "Erkläre, wie Cybergrooming typischerweise abläuft.",
+    ],
+    afb3: [
+      "Beurteile, welche Verantwortung Nutzer*innen, Plattformen und der Staat beim Schutz vor digitaler Gewalt tragen.",
+    ],
+    ki1: [
+      "Nenne, wie ihr eine KI nach Schutzmaßnahmen vor Deepfakes fragt.",
+    ],
+    ki2: [],
+    ki3: [
+      "Erläutere, welche Verantwortung die Anbieter von KI-Bildgeneratoren selbst für die Entstehung von Deepfakes tragen (KI-Level 3).",
+    ],
+  },
+  L: {
+    afb1: [
+      "Nenne die vier Hauptschritte einer IVF-Behandlung.",
+      "Beschreibe den Unterschied zwischen IVF und ICSI.",
+      "Nenne die zwei in Deutschland verbotenen reproduktionsmedizinischen Verfahren.",
+      "Beschreibe die „Dreierregel“ des Embryonenschutzgesetzes.",
+    ],
+    afb2: [
+      "Erkläre, wie die Hormonstimulation bei der IVF auf den Regelkreis aus Block D (FSH) zurückgreift.",
+      "Erkläre die aktuelle gesellschaftliche Debatte um eine Legalisierung der Eizellspende.",
+    ],
+    afb3: [
+      "Beurteile, wie eine Gesellschaft entscheiden sollte, was medizinisch machbar, aber ethisch umstritten ist.",
+    ],
+    ki1: [
+      "Nenne, was bei der KI-Kernaufgabe zu einem umstrittenen reproduktionsmedizinischen Verfahren dokumentiert werden muss.",
+    ],
+    ki2: [
+      "Beschreibe, woran man erkennt, dass eine KI bei einer Frage zur Reproduktionsmedizin ausweicht.",
+    ],
+    ki3: [
+      "★ KI-Kernfrage (Level 4): Erkläre, wie ihr einen neutralen und einen tendenziösen Prompt zu Eizellspende oder Leihmutterschaft formuliert und vergleicht, und woran ihr eine unbemerkte Positionierung erkennt.",
+    ],
+  },
+};
+
+
+const STORAGE_KEY = "sexualitaet_pruefungstool_v1";
+const RATINGS = ["++", "+", "0", "-", "--"];
+const FACH_AFB = ["afb1", "afb2", "afb3"];
+const KI_AFB = ["ki1", "ki2", "ki3"];
+const ALL_AFB = ["afb1", "afb2", "afb3", "ki1", "ki2", "ki3"];
+const AFB_LABEL = { afb1: "AFB I", afb2: "AFB II", afb3: "AFB III", ki1: "KI · AFB I", ki2: "KI · AFB II", ki3: "KI · AFB III" };
+// AFB-Zuordnung für die Auswertung (KI zählt in dieselbe AFB-Stufe wie die Fachfragen)
+const AFB_GROUP = { afb1: "afb1", afb2: "afb2", afb3: "afb3", ki1: "afb1", ki2: "afb2", ki3: "afb3" };
+const IS_KI = { afb1: false, afb2: false, afb3: false, ki1: true, ki2: true, ki3: true };
+
+let state = { groups: [] };
+let openPanels = {};
+let draft = {};
+
+function defaultDraft() {
+  return {
+    blocks: new Set(),
+    counts: { afb1: 4, afb2: 3, afb3: 1 },   // Fachfragen (unverändert)
+    kiCounts: { ki1: 1, ki2: 1, ki3: 2 },     // KI-Fragen: Schwerpunkt Level 4 (ki3), passend zur Reihenausrichtung
+    drawn: null,
+    ratings: {},
+  };
+}
+
+// ============================== AUSWERTUNG ==============================
+
+const RATING_SCORE = { "++": 1, "+": 2, "0": 3, "-": 4, "--": 5 };
+const RATING_COLORS = { "++": "#2E7D32", "+": "#7CB342", "0": "#9E9E9E", "-": "#E65100", "--": "#C62828" };
+
+function gradeSuggestion(avg) {
+  if (avg <= 1.5) return "sehr gut (1)";
+  if (avg <= 2.5) return "gut (2)";
+  if (avg <= 3.5) return "befriedigend (3)";
+  if (avg <= 4.5) return "ausreichend (4)";
+  return "mangelhaft (5)";
+}
+
+function collectRatedEntries(entries) { return entries.filter((e) => e.rating); }
+
+function renderAuswertung(entries) {
+  const rated = collectRatedEntries(entries);
+  if (!rated.length) {
+    return '<div class="auswertung"><h5>Grafische Auswertung</h5><p style="color:var(--muted);font-size:0.85rem;margin:0;">Noch keine Fragen bewertet.</p></div>';
+  }
+  const counts = { "++": 0, "+": 0, "0": 0, "-": 0, "--": 0 };
+  rated.forEach((e) => counts[e.rating]++);
+  const max = Math.max(...Object.values(counts), 1);
+
+  let bars = "";
+  RATINGS.forEach((r) => {
+    const c = counts[r];
+    const pct = (c / max) * 100;
+    bars += '<div class="chart-row"><span class="rlabel">' + r + '</span>' +
+      '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%; background:' + RATING_COLORS[r] + ';"></div></div>' +
+      '<span class="rcount">' + c + '</span></div>';
+  });
+
+  const avgOverall = rated.reduce((s, e) => s + RATING_SCORE[e.rating], 0) / rated.length;
+
+  // Per-AFB breakdown (Fach + KI zusammengefasst je Stufe)
+  const afbGroups = { afb1: [], afb2: [], afb3: [] };
+  rated.forEach((e) => afbGroups[AFB_GROUP[e.afb]].push(e));
+  const afbLabels = { afb1: "AFB I", afb2: "AFB II", afb3: "AFB III" };
+  const afbColors = { afb1: "#1A3A5C", afb2: "#2E7D32", afb3: "#E65100" };
+  let afbHtml = "";
+  Object.entries(afbGroups).forEach(([afb, list]) => {
+    if (!list.length) return;
+    const avg = list.reduce((s, e) => s + RATING_SCORE[e.rating], 0) / list.length;
+    afbHtml += '<span><span class="tag" style="background:' + afbColors[afb] + ';color:#fff;">' + afbLabels[afb] + '</span>Ø ' + avg.toFixed(1) + ' (' + gradeSuggestion(avg) + ')</span>';
+  });
+
+  // Separater KI-Block (nur KI-Fragen)
+  const kiRated = rated.filter((e) => IS_KI[e.afb]);
+  let kiHtml = "";
+  if (kiRated.length) {
+    const kiAvg = kiRated.reduce((s, e) => s + RATING_SCORE[e.rating], 0) / kiRated.length;
+    kiHtml = '<div style="margin-top:0.5rem;"><span class="tag" style="background:#7B1FA2;color:#fff;">KI-Kompetenz</span> ' +
+      kiRated.length + ' Fragen · Ø ' + kiAvg.toFixed(1) + ' (' + gradeSuggestion(kiAvg) + ')</div>';
+  }
+
+  return '<div class="auswertung"><h5>Grafische Auswertung (' + rated.length + ' von ' + entries.length + ' Fragen bewertet)</h5>' +
+    bars +
+    '<div class="grade-suggestion">Gesamtdurchschnitt: <strong>' + avgOverall.toFixed(2) + '</strong> &rarr; Notenvorschlag: <strong>' + gradeSuggestion(avgOverall) + '</strong></div>' +
+    '<div class="afb-breakdown">' + afbHtml + '</div>' + kiHtml +
+    '<div class="disclaimer">Nur ein rechnerischer Vorschlag auf Basis der Ampel-Bewertungen – ersetzt nicht die fachliche Einschätzung der Lehrkraft und ist von der Notengebung der Reihe (Portfolio/KI-Doku/Mitarbeit, siehe Masterdokument Abschnitt 5) zu unterscheiden.</div></div>';
+}
+
+function currentDraftEntries(groupId) {
+  const d = draft[groupId];
+  if (!d || !d.drawn) return [];
+  const entries = [];
+  Object.entries(d.drawn).forEach(([letter, afbSets]) => {
+    ALL_AFB.forEach((afb) => {
+      (afbSets[afb] || []).forEach((q, i) => {
+        const key = letter + "-" + afb + "-" + i;
+        entries.push({ block: letter, afb, question: q, rating: d.ratings[key] || null });
+      });
+    });
+  });
+  return entries;
+}
+
+function uid() { return "g" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function fmtDate(ts) { return new Date(ts).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }); }
+
+function loadState() {
+  try { const raw = localStorage.getItem(STORAGE_KEY); if (raw) state = JSON.parse(raw); }
+  catch (e) { state = { groups: [] }; }
+  render();
+}
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  catch (e) { showToast("Speichern fehlgeschlagen"); }
+}
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 1800);
+}
+function findGroup(id) { return state.groups.find((g) => g.id === id); }
+
+function addGroup() {
+  const input = document.getElementById("newGroupName");
+  const name = input.value.trim();
+  if (!name) return;
+  state.groups.push({ id: uid(), name, history: [] });
+  input.value = "";
+  saveState(); render();
+  showToast("„" + name + "“ angelegt");
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+
+function togglePanel(groupId, panel) {
+  openPanels[groupId] = openPanels[groupId] === panel ? null : panel;
+  if (openPanels[groupId] === "neu" && !draft[groupId]) draft[groupId] = defaultDraft();
+  render();
+}
+
+function toggleBlock(groupId, letter) {
+  const d = draft[groupId];
+  if (d.blocks.has(letter)) d.blocks.delete(letter); else d.blocks.add(letter);
+  render();
+}
+
+function drawQuestions(groupId) {
+  const d = draft[groupId];
+  if (d.blocks.size === 0) { showToast("Wähle mindestens einen Block aus"); return; }
+  const drawn = {};
+  d.blocks.forEach((letter) => {
+    const pool = QUESTIONS[letter];
+    drawn[letter] = {
+      afb1: shuffle(pool.afb1).slice(0, Math.min(d.counts.afb1, pool.afb1.length)),
+      afb2: shuffle(pool.afb2).slice(0, Math.min(d.counts.afb2, pool.afb2.length)),
+      afb3: shuffle(pool.afb3).slice(0, Math.min(d.counts.afb3, pool.afb3.length)),
+      ki1: shuffle(pool.ki1).slice(0, Math.min(d.kiCounts.ki1, pool.ki1.length)),
+      ki2: shuffle(pool.ki2).slice(0, Math.min(d.kiCounts.ki2, pool.ki2.length)),
+      ki3: shuffle(pool.ki3).slice(0, Math.min(d.kiCounts.ki3, pool.ki3.length)),
+    };
+  });
+  d.drawn = drawn;
+  d.ratings = {};
+  render();
+}
+
+function setRating(groupId, key, value) { draft[groupId].ratings[key] = value; render(); }
+
+function finishExam(groupId) {
+  const g = findGroup(groupId);
+  const d = draft[groupId];
+  if (!d || !d.drawn) return;
+  const entries = [];
+  Object.entries(d.drawn).forEach(([letter, afbSets]) => {
+    ALL_AFB.forEach((afb) => {
+      (afbSets[afb] || []).forEach((q, i) => {
+        const key = letter + "-" + afb + "-" + i;
+        entries.push({ block: letter, afb, question: q, rating: d.ratings[key] || null });
+      });
+    });
+  });
+  g.history.unshift({ ts: Date.now(), blocks: [...d.blocks], entries });
+  draft[groupId] = defaultDraft();
+  openPanels[groupId] = null;
+  saveState(); render();
+  showToast("Prüfung für " + g.name + " gespeichert");
+}
+
+let deleteArmed = {};
+function deleteGroup(groupId) {
+  if (!deleteArmed[groupId]) {
+    deleteArmed[groupId] = true; render();
+    setTimeout(() => { deleteArmed[groupId] = false; render(); }, 3000);
+    return;
+  }
+  state.groups = state.groups.filter((g) => g.id !== groupId);
+  saveState(); render();
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "Pruefungstool_Sexualitaet_Backup_" + new Date().toISOString().slice(0, 10) + ".json";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast("Backup heruntergeladen");
+}
+function importData(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!imported || !Array.isArray(imported.groups)) throw new Error("invalid");
+      state = imported; saveState(); render();
+      showToast("Daten importiert");
+    } catch (err) { showToast("Import fehlgeschlagen – ungültige Datei"); }
+  };
+  reader.readAsText(file);
+}
+
+// ============================== RENDER ==============================
+
+function afbClass(afb) { return IS_KI[afb] ? "ki" : afb; }
+
+function renderNeuPanel(g) {
+  const d = draft[g.id];
+  let html = '<div class="panel"><h4>Neue Prüfung – Blöcke auswählen</h4><div class="block-grid">';
+  Object.entries(BLOCKS_META).forEach(([letter, meta]) => {
+    const checked = d.blocks.has(letter) ? "checked" : "";
+    html += '<label class="block-check ' + (meta.pflicht ? "pflicht" : "") + '">' +
+      '<input type="checkbox" ' + checked + ' onchange="toggleBlock(\'' + g.id + '\',\'' + letter + '\')"> ' + letter + ' – ' + meta.title + '</label>';
+  });
+  html += '</div>' +
+    '<div class="num-row">Fachfragen pro Block: ' +
+      'AFB I <input type="number" min="0" max="8" value="' + d.counts.afb1 + '" onchange="draft[\'' + g.id + '\'].counts.afb1=parseInt(this.value||0,10)"> ' +
+      'AFB II <input type="number" min="0" max="6" value="' + d.counts.afb2 + '" onchange="draft[\'' + g.id + '\'].counts.afb2=parseInt(this.value||0,10)"> ' +
+      'AFB III <input type="number" min="0" max="3" value="' + d.counts.afb3 + '" onchange="draft[\'' + g.id + '\'].counts.afb3=parseInt(this.value||0,10)">' +
+    '</div>' +
+    '<div class="num-row ki-row"><strong>KI-Fragen pro Block:</strong> ' +
+      'AFB I <input type="number" min="0" max="3" value="' + d.kiCounts.ki1 + '" onchange="draft[\'' + g.id + '\'].kiCounts.ki1=parseInt(this.value||0,10)"> ' +
+      'AFB II <input type="number" min="0" max="3" value="' + d.kiCounts.ki2 + '" onchange="draft[\'' + g.id + '\'].kiCounts.ki2=parseInt(this.value||0,10)"> ' +
+      'AFB III <input type="number" min="0" max="3" value="' + d.kiCounts.ki3 + '" onchange="draft[\'' + g.id + '\'].kiCounts.ki3=parseInt(this.value||0,10)">' +
+    '</div>' +
+    '<div style="margin:0.7rem 0;"><button class="btn-primary" onclick="drawQuestions(\'' + g.id + '\')">Fragen auslosen</button> ' +
+    (d.drawn ? '<button class="btn-ghost btn-small" onclick="drawQuestions(\'' + g.id + '\')">Neu mischen</button>' : "") +
+    '</div>';
+
+  if (d.drawn) {
+    Object.entries(d.drawn).forEach(([letter, afbSets]) => {
+      html += '<div class="block-heading">Block ' + letter + ' – ' + BLOCKS_META[letter].title + '</div>';
+      const hasFach = FACH_AFB.some((a) => (afbSets[a] || []).length);
+      const hasKi = KI_AFB.some((a) => (afbSets[a] || []).length);
+      if (hasFach) {
+        html += '<div class="sub-heading fach">Inhaltliche Fragen</div>';
+        FACH_AFB.forEach((afb) => {
+          (afbSets[afb] || []).forEach((q, i) => { html += renderQBox(g.id, d, letter, afb, q, i); });
+        });
+      }
+      if (hasKi) {
+        html += '<div class="sub-heading ki">KI-Kompetenz-Fragen</div>';
+        KI_AFB.forEach((afb) => {
+          (afbSets[afb] || []).forEach((q, i) => { html += renderQBox(g.id, d, letter, afb, q, i); });
+        });
+      }
+    });
+    html += '<div style="margin-top:1rem;"><button class="btn-primary" onclick="finishExam(\'' + g.id + '\')">Prüfung abschließen &amp; speichern</button></div>';
+  }
+  html += renderAuswertung(currentDraftEntries(g.id));
+  html += '</div>';
+  return html;
+}
+
+function renderQBox(gid, d, letter, afb, q, i) {
+  const key = letter + "-" + afb + "-" + i;
+  const current = d.ratings[key];
+  return '<div class="qbox ' + afbClass(afb) + '">' +
+    '<div class="qlabel">' + AFB_LABEL[afb] + '</div>' +
+    '<div class="qtext">' + q + '</div>' +
+    '<div class="rating">' + RATINGS.map((r) => '<button class="' + (current === r ? "active" : "") + '" onclick="setRating(\'' + gid + '\',\'' + key + '\',\'' + r + '\')">' + r + '</button>').join("") + '</div>' +
+    '</div>';
+}
+
+function renderVerlaufPanel(g) {
+  if (!g.history.length) return '<div class="panel"><div class="hist-empty">Noch keine Prüfung gespeichert.</div></div>';
+  let html = '<div class="panel"><h4>Verlauf</h4>';
+  g.history.forEach((h, idx) => {
+    html += '<details style="margin-bottom:0.6rem;">' +
+      '<summary>' + fmtDate(h.ts) + ' – Blöcke: ' + h.blocks.join(", ") + ' (' + h.entries.length + ' Fragen)</summary>' +
+      '<div style="margin:0.5rem 0;"><button class="btn-ghost btn-small" onclick="exportExamPdf(\'' + g.id + '\', ' + idx + ')">Als PDF exportieren</button></div>' +
+      '<table class="history"><tr><th>Block</th><th>AFB</th><th>Frage</th><th>Bewertung</th></tr>' +
+      h.entries.map((e) => '<tr><td>' + e.block + '</td><td>' + AFB_LABEL[e.afb] + '</td><td>' + e.question + '</td><td>' + (e.rating || "–") + '</td></tr>').join("") +
+      '</table>' + renderAuswertung(h.entries) + '</details>';
+  });
+  html += '</div>';
+  return html;
+}
+
+function exportExamPdf(groupId, examIndex) {
+  const g = findGroup(groupId);
+  if (!g || !g.history[examIndex]) return;
+  const h = g.history[examIndex];
+
+  const rated = h.entries.filter((e) => e.rating);
+  const counts = { "++": 0, "+": 0, "0": 0, "-": 0, "--": 0 };
+  rated.forEach((e) => counts[e.rating]++);
+  let avgBlock = "";
+  if (rated.length) {
+    const avg = rated.reduce((s, e) => s + RATING_SCORE[e.rating], 0) / rated.length;
+    const afbGroups = { afb1: [], afb2: [], afb3: [] };
+    rated.forEach((e) => afbGroups[AFB_GROUP[e.afb]].push(e));
+    const afbLabels = { afb1: "AFB I", afb2: "AFB II", afb3: "AFB III" };
+    let afbRows = "";
+    Object.entries(afbGroups).forEach(([afb, list]) => {
+      if (!list.length) return;
+      const a = list.reduce((s, e) => s + RATING_SCORE[e.rating], 0) / list.length;
+      afbRows += "<tr><td>" + afbLabels[afb] + "</td><td>" + list.length + "</td><td>" + a.toFixed(1) + " (" + gradeSuggestion(a) + ")</td></tr>";
+    });
+    const kiRated = rated.filter((e) => IS_KI[e.afb]);
+    let kiRow = "";
+    if (kiRated.length) {
+      const ka = kiRated.reduce((s, e) => s + RATING_SCORE[e.rating], 0) / kiRated.length;
+      kiRow = "<tr><td>davon KI-Kompetenz</td><td>" + kiRated.length + "</td><td>" + ka.toFixed(1) + " (" + gradeSuggestion(ka) + ")</td></tr>";
+    }
+    avgBlock =
+      "<h2>Auswertung</h2><p>Bewertete Fragen: <strong>" + rated.length + "</strong> von " + h.entries.length + "<br>" +
+      "Verteilung: ++ " + counts["++"] + " | + " + counts["+"] + " | 0 " + counts["0"] + " | - " + counts["-"] + " | -- " + counts["--"] + "<br>" +
+      "Gesamtdurchschnitt: <strong>" + avg.toFixed(2) + "</strong> &rarr; Notenvorschlag: <strong>" + gradeSuggestion(avg) + "</strong></p>" +
+      "<table class='tbl'><tr><th>Bereich</th><th>Fragen</th><th>&Oslash; / Vorschlag</th></tr>" + afbRows + kiRow + "</table>" +
+      "<p class='disc'>Rechnerischer Vorschlag auf Basis der Ampel-Bewertungen. Ersetzt nicht die fachliche Einschätzung der Lehrkraft. Die Reihennote setzt sich laut Masterdokument (Abschnitt 5) aus Portfolio, KI-Dokumentation, Prüfungsgespräch und Mitarbeit zusammen.</p>";
+  }
+
+  const rows = h.entries.map((e) =>
+    "<tr><td>" + e.block + "</td><td>" + AFB_LABEL[e.afb] + "</td><td>" + e.question + "</td><td class='rat'>" + (e.rating || "–") + "</td></tr>"
+  ).join("");
+
+  const win = window.open("", "_blank");
+  if (!win) { showToast("Bitte Pop-ups für diese Seite erlauben"); return; }
+  win.document.write('<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><title>Pruefungsprotokoll ' + g.name + '</title>' +
+    '<style>body{font-family:Arial,Helvetica,sans-serif;color:#1a1a1a;margin:2rem;line-height:1.5;}' +
+    'h1{color:#0D1B2A;font-size:1.4rem;margin-bottom:0.2rem;}h2{color:#0D1B2A;font-size:1.1rem;margin-top:1.5rem;border-bottom:1px solid #ccc;padding-bottom:0.2rem;}' +
+    '.meta{color:#555;font-size:0.9rem;margin-bottom:1rem;}table{width:100%;border-collapse:collapse;margin-top:0.5rem;font-size:0.9rem;}' +
+    'th,td{border:1px solid #ccc;padding:0.4rem 0.5rem;text-align:left;vertical-align:top;}th{background:#37474F;color:#fff;font-size:0.82rem;}' +
+    '.rat{text-align:center;font-weight:bold;width:60px;}.tbl td:first-child{font-weight:bold;}.disc{font-size:0.75rem;color:#666;font-style:italic;margin-top:0.8rem;}' +
+    '.sign{margin-top:2.5rem;display:flex;gap:3rem;}.sign div{border-top:1px solid #333;padding-top:0.3rem;font-size:0.85rem;flex:1;}' +
+    '@media print{body{margin:1.5cm;}.noprint{display:none;}}.btn{background:#0D1B2A;color:#fff;border:none;padding:0.6rem 1.2rem;border-radius:6px;font-size:0.9rem;cursor:pointer;margin-bottom:1rem;}</style></head><body>' +
+    '<button class="btn noprint" onclick="window.print()">Als PDF speichern / drucken</button>' +
+    '<h1>Pr&uuml;fungsprotokoll &ndash; ' + g.name + '</h1>' +
+    '<div class="meta">WPK Naturwissenschaften &middot; Reihe 4: Sexualit&auml;t &ndash; Verantwortung f&uuml;r sich und andere<br>Datum der Pr&uuml;fung: ' + fmtDate(h.ts) + ' &middot; Gepr&uuml;fte Bl&ouml;cke: ' + h.blocks.join(", ") + '</div>' +
+    '<h2>Fragen und Bewertungen</h2><table><tr><th>Block</th><th>AFB</th><th>Frage</th><th>Bewertung</th></tr>' + rows + '</table>' +
+    avgBlock +
+    '<div class="sign"><div>Datum, Unterschrift Lehrkraft</div><div>Bemerkungen</div></div></body></html>');
+  win.document.close();
+}
+
+function render() {
+  const list = document.getElementById("groupList");
+  if (!state.groups.length) {
+    list.innerHTML = '<div class="empty">Noch keine Gruppen angelegt. Fügt oben eure erste Gruppe hinzu.</div>';
+    return;
+  }
+  const sorted = [...state.groups].sort((a, b) => a.name.localeCompare(b.name, "de"));
+  list.innerHTML = sorted.map((g) => {
+    const open = openPanels[g.id];
+    let panelHtml = "";
+    if (open === "neu") panelHtml = renderNeuPanel(g);
+    else if (open === "verlauf") panelHtml = renderVerlaufPanel(g);
+    return '<div class="card"><div class="card-head"><span class="card-name">' + g.name + '</span></div>' +
+      '<div class="card-actions">' +
+      '<button class="btn-primary btn-small" onclick="togglePanel(\'' + g.id + '\',\'neu\')">Neue Prüfung</button> ' +
+      '<button class="btn-ghost btn-small" onclick="togglePanel(\'' + g.id + '\',\'verlauf\')">Verlauf (' + g.history.length + ')</button> ' +
+      '<button class="btn-ghost btn-small" onclick="deleteGroup(\'' + g.id + '\')">' + (deleteArmed[g.id] ? "Wirklich löschen?" : "Löschen") + '</button>' +
+      '</div>' + panelHtml + '</div>';
+  }).join("");
+}
+
+document.getElementById("addGroupBtn").addEventListener("click", addGroup);
+document.getElementById("newGroupName").addEventListener("keydown", (e) => { if (e.key === "Enter") addGroup(); });
+document.getElementById("exportBtn").addEventListener("click", exportData);
+document.getElementById("importBtn").addEventListener("click", () => document.getElementById("importFile").click());
+document.getElementById("importFile").addEventListener("change", (e) => {
+  if (e.target.files && e.target.files[0]) importData(e.target.files[0]);
+  e.target.value = "";
+});
+
+loadState();
+</script>
+</body>
+</html>
